@@ -74,6 +74,15 @@ function write_record(item_key, record)
 	end
 end
 
+function M.clear()
+	for item_key, cached_value in value_cache do
+		T.release(cached_value)
+		value_cache[item_key] = nil
+	end
+	data = {}
+	aux.faction_data.history = data
+end
+
 local data_sharer = CreateFrame("Frame", "aux_data_sharer")
 data_sharer:RegisterEvent("CHAT_MSG_CHANNEL")
 

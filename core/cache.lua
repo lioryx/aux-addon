@@ -114,6 +114,11 @@ function M.item_id(item_name)
 	return aux.account_data.item_ids[strlower(item_name)]
 end
 
+function M.clear_price_cache()
+	aux.account_data.merchant_buy = {}
+	aux.account_data.merchant_sell = {}
+end
+
 function merchant_buy_scan()
 	local incomplete_data
 	for i = 1, GetMerchantNumItems() do

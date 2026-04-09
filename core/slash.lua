@@ -2,6 +2,7 @@ module 'aux.core.slash'
 
 local T = require 'T'
 local aux = require 'aux'
+local history = require 'aux.core.history'
 local info = require 'aux.util.info'
 local post = require 'aux.tabs.post'
 local purchase_summary = require 'aux.util.purchase_summary'
@@ -65,6 +66,10 @@ function SlashCmdList.AUX(command)
         aux.account_data.item_ids = {}
         aux.account_data.auctionable_items = {}
         aux.print('Item cache cleared.')
+    elseif arguments[1] == 'clear' and arguments[2] == 'price' and arguments[3] == 'cache' then
+	    history.clear()
+	    info.clear_price_cache()
+	    aux.print('Price cache cleared.')
     elseif arguments[1] == 'populate' and arguments[2] == 'wdb' then
 	    info.populate_wdb()
 	elseif arguments[1] == 'sharing' then
@@ -100,6 +105,7 @@ function SlashCmdList.AUX(command)
 		aux.print('- tooltip disenchant value [' .. status(tooltip_settings.disenchant_value) .. ']')
 		aux.print('- tooltip disenchant distribution [' .. status(tooltip_settings.disenchant_distribution) .. ']')
 		aux.print('- clear item cache')
+		aux.print('- clear price cache')
 		aux.print('- populate wdb')
 		aux.print('- sharing [' .. status(aux.account_data.sharing) .. ']')
         aux.print('- theme [' .. aux.color[aux.account_data.theme == 'blizzard' and 'green' or 'red']('blizzard') .. ' | ' .. 
