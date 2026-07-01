@@ -1,6 +1,7 @@
 module 'aux.tabs.post'
 
 local T = require 'T'
+local L = require('aux.locale').t
 local aux = require 'aux'
 local info = require 'aux.util.info'
 local sort_util = require 'aux.util.sort'
@@ -14,7 +15,7 @@ local item_listing = require 'aux.gui.item_listing'
 local al = require 'aux.gui.auction_listing'
 local gui = require 'aux.gui'
 
-local tab = aux.tab 'Post'
+local tab = aux.tab(L'Post')
 
 local settings_schema = {'tuple', '#', {duration='number'}, {start_price='number'}, {buyout_price='number'}, {hidden='boolean'}, {stack_size='number'}}
 
@@ -327,7 +328,7 @@ function update_item_configuration()
         item.texture:SetTexture(nil)
         item.count:SetText()
         item.name:SetTextColor(aux.color.label.enabled())
-        item.name:SetText('No item selected')
+        item.name:SetText(L'No item selected')
 
         unit_start_price_input:Hide()
         unit_buyout_price_input:Hide()
@@ -368,18 +369,18 @@ function update_item_configuration()
             local stack_size, stack_count = selected_item.max_charges and 1 or stack_size_slider:GetValue(), stack_count_slider:GetValue()
             local max_stack = selected_item.max_stack
             local amount = floor(selected_item.unit_vendor_price * stack_size * duration_factor * (1 + (max_stack - stack_size) * 0.05) * deposit_factor) * stack_count
-            deposit:SetText('Deposit: ' .. money.to_string(amount, nil, nil, aux.color.text.enabled))
+            deposit:SetText(L'Deposit: ' .. money.to_string(amount, nil, nil, aux.color.text.enabled))
         end
 
         --vendor price
         do
             local unit_vendor_price = selected_item.unit_vendor_price
             if not unit_vendor_price then
-                vendor_price_label:SetText("Unit Vendor Price: N/A")
+                vendor_price_label:SetText(L"Unit Vendor Price: N/A")
             elseif unit_vendor_price == 0 then
-                vendor_price_label:SetText("Unit Vendor Price: None")
+                vendor_price_label:SetText(L"Unit Vendor Price: None")
             else
-                vendor_price_label:SetText("Unit Vendor Price: " .. money.to_string(unit_vendor_price, nil, nil, aux.color.text.enabled))
+                vendor_price_label:SetText(L"Unit Vendor Price: " .. money.to_string(unit_vendor_price, nil, nil, aux.color.text.enabled))
             end
         end
 
@@ -538,7 +539,7 @@ function refresh_entries()
         bid_records[item_key], buyout_records[item_key] = nil, nil
         local query = scan_util.item_query(selected_item.item_id)
         status_bar:update_status(0, 0)
-        status_bar:set_text('Scanning auctions...')
+        status_bar:set_text(L'Scanning auctions...')
 
 		scan_id = scan.start{
             type = 'list',
@@ -546,7 +547,7 @@ function refresh_entries()
 			queries = T.list(query),
 			on_page_loaded = function(page, total_pages)
                 status_bar:update_status(page / total_pages, 0) -- TODO
-                status_bar:set_text(format('Scanning Page %d / %d', page, total_pages))
+                status_bar:set_text(format(L'Scanning Page %d / %d', page, total_pages))
 			end,
 			on_auction = function(auction_record)
 				if auction_record.item_key == item_key then
@@ -563,14 +564,14 @@ function refresh_entries()
 			on_abort = function()
 				bid_records[item_key], buyout_records[item_key] = nil, nil
                 status_bar:update_status(1, 1)
-                status_bar:set_text('Scan aborted')
+                status_bar:set_text(L'Scan aborted')
 			end,
 			on_complete = function()
 				bid_records[item_key] = bid_records[item_key] or T.acquire()
 				buyout_records[item_key] = buyout_records[item_key] or T.acquire()
                 refresh = true
                 status_bar:update_status(1, 1)
-                status_bar:set_text('Scan complete')
+                status_bar:set_text(L'Scan complete')
             end,
 		}
 	end
@@ -628,17 +629,17 @@ function initialize_duration_dropdown()
         refresh = true
     end
     UIDropDownMenu_AddButton{
-        text = '6 Hours',
+        text = L'6 Hours',
         value = DURATION_2,
         func = on_click,
     }
     UIDropDownMenu_AddButton{
-        text = '24 Hours',
+        text = L'24 Hours',
         value = DURATION_8,
         func = on_click,
     }
     UIDropDownMenu_AddButton{
-        text = '72 Hours',
+        text = L'72 Hours',
         value = DURATION_24,
         func = on_click,
     }

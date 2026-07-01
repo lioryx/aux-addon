@@ -9,6 +9,8 @@ libs\package.lua
 libs\T.lua
 libs\ChatThrottleLib.lua
 
+locale.lua
+
 aux-addon.lua
 util.lua
 control.lua

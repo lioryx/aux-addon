@@ -1,6 +1,7 @@
 module 'aux.core.post'
 
 local aux = require 'aux'
+local L = require('aux.locale').t
 local info = require 'aux.util.info'
 local stack = require 'aux.core.stack'
 local history = require 'aux.core.history'
@@ -119,7 +120,7 @@ function post_auction(slot, k)
 			
 			if disenchant.value(item_info.slot, item_info.quality, item_info.level, item_info.item_id) ~= nil then 
 				if buyout_price < 0.95 * tonumber(disenchant.value(item_info.slot, item_info.quality, item_info.level, item_info.item_id)) -30 then
-					aux.print("autopricing recommends disenchanting!")
+					aux.print(L"autopricing recommends disenchanting!")
 					return stop()
 				end
 			end
@@ -127,13 +128,13 @@ function post_auction(slot, k)
 			if kz_daily == 1 and vendor_price > 0 then 
 				if tonumber(history.value(state.item_key)) < 1.35 * vendor_price 
 				or tonumber(history.market_value(state.item_key)) < 1.35 * vendor_price then
-					aux.print("autopricing recommends vendoring!")
+					aux.print(L"autopricing recommends vendoring!")
 					return stop()
 				end
 			end
 			
 			if start_price == 0 or (kz_warn == 2 and kz_pricing == 0) then
-				aux.print("insufficient data for autopricing!")
+				aux.print(L"insufficient data for autopricing!")
 				return stop()
 			end
 			

@@ -1,6 +1,7 @@
 module 'aux.tabs.auctions'
 
 local aux = require 'aux'
+local L = require('aux.locale').t
 local info = require 'aux.util.info'
 local gui = require 'aux.gui'
 local auction_listing = require 'aux.gui.auction_listing'
@@ -49,14 +50,14 @@ function aux.handle.INIT_UI()
     do
         local btn = gui.button(frame)
         btn:SetPoint('TOPLEFT', status_bar, 'TOPRIGHT', 5, 0)
-        btn:SetText('Cancel')
+        btn:SetText(L'Cancel')
         btn:Disable()
         cancel_button = btn
     end
     do
         local btn = gui.button(frame)
         btn:SetPoint('TOPLEFT', cancel_button, 'TOPRIGHT', 5, 0)
-        btn:SetText('Refresh')
+        btn:SetText(L'Refresh')
         btn:SetScript('OnClick', function()
             scan_auctions()
         end)

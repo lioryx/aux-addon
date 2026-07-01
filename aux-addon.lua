@@ -1,6 +1,7 @@
 module 'aux'
 
 local T = require 'T'
+local L = require('aux.locale').t
 local post = require 'aux.tabs.post'
 local gui = require 'aux.gui'
 local purchase_summary = require 'aux.util.purchase_summary'
@@ -45,8 +46,8 @@ do
             for _, f in handlers_LOAD do f() end
 		elseif event == 'PLAYER_LOGIN' then
 			for _, f in handlers_LOAD2 do f() end
-			print('loaded - /aux')
-			DEFAULT_CHAT_FRAME:AddMessage(LIGHTYELLOW_FONT_COLOR_CODE .. 'aux now comes with a new blizz-like theme. If you wish to switch between themes, use /aux theme')
+			print(L'loaded - /aux')
+			DEFAULT_CHAT_FRAME:AddMessage(LIGHTYELLOW_FONT_COLOR_CODE .. L'aux now comes with a new blizz-like theme. If you wish to switch between themes, use /aux theme')
 		else
 			_M[event]()
 		end

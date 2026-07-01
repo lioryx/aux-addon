@@ -1,6 +1,7 @@
 module 'aux.tabs.bids'
 
 local aux = require 'aux'
+local L = require('aux.locale').t
 local info = require 'aux.util.info'
 local gui = require 'aux.gui'
 local auction_listing = require 'aux.gui.auction_listing'
@@ -51,21 +52,21 @@ function aux.handle.INIT_UI()
     do
         local btn = gui.button(frame)
         btn:SetPoint('TOPLEFT', status_bar, 'TOPRIGHT', 5, 0)
-        btn:SetText('Bid')
+        btn:SetText(L'Bid')
         btn:Disable()
         bid_button = btn
     end
     do
         local btn = gui.button(frame)
         btn:SetPoint('TOPLEFT', bid_button, 'TOPRIGHT', 5, 0)
-        btn:SetText('Buyout')
+        btn:SetText(L'Buyout')
         btn:Disable()
         buyout_button = btn
     end
     do
         local btn = gui.button(frame)
         btn:SetPoint('TOPLEFT', buyout_button, 'TOPRIGHT', 5, 0)
-        btn:SetText('Refresh')
+        btn:SetText(L'Refresh')
         btn:SetScript('OnClick', function()
             scan_bids()
         end)

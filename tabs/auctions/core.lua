@@ -1,11 +1,12 @@
 module 'aux.tabs.auctions'
 
 local T = require 'T'
+local L = require('aux.locale').t
 local aux = require 'aux'
 local scan_util = require 'aux.util.scan'
 local scan = require 'aux.core.scan'
 
-local tab = aux.tab 'Auctions'
+local tab = aux.tab(L'Auctions')
 
 auction_records = T.acquire()
 
@@ -25,7 +26,7 @@ end
 function M.scan_auctions()
 
     status_bar:update_status(0, 0)
-    status_bar:set_text('Scanning auctions...')
+    status_bar:set_text(L'Scanning auctions...')
 
     T.wipe(auction_records)
     update_listing()
@@ -34,19 +35,19 @@ function M.scan_auctions()
         queries = {{blizzard_query = T.acquire()}},
         on_page_loaded = function(page, total_pages)
             status_bar:update_status(page / total_pages, 0)
-            status_bar:set_text(format('Scanning (Page %d / %d)', page, total_pages))
+            status_bar:set_text(format(L'Scanning (Page %d / %d)', page, total_pages))
         end,
         on_auction = function(auction_record)
             tinsert(auction_records, auction_record)
         end,
         on_complete = function()
             status_bar:update_status(1, 1)
-            status_bar:set_text('Scan complete')
+            status_bar:set_text(L'Scan complete')
             update_listing()
         end,
         on_abort = function()
             status_bar:update_status(1, 1)
-            status_bar:set_text('Scan aborted')
+            status_bar:set_text(L'Scan aborted')
         end,
     }
 end

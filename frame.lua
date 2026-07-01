@@ -1,6 +1,7 @@
 module 'aux'
 
 local gui = require 'aux.gui'
+local L = require('aux.locale').t
 
 function handle.LOAD()
 	for _, v in ipairs(tab_info) do
@@ -49,7 +50,7 @@ function handle.INIT_UI()
         local btn = gui.button(frame)
         btn:SetPoint('BOTTOMRIGHT', -5, 5)
         gui.set_size(btn, 60, 24)
-        btn:SetText('Close')
+        btn:SetText(L'Close')
         btn:SetScript('OnClick', function() frame:Hide() end)
         btn:SetFrameLevel(btn:GetFrameLevel() + 2)
         close_button = btn
@@ -58,7 +59,7 @@ function handle.INIT_UI()
         local btn = gui.button(frame, gui.font_size.small)
         btn:SetPoint('RIGHT', close_button, 'LEFT' , -5, 0)
         gui.set_size(btn, gui.is_blizzard() and 80 or 60, 24)
-        btn:SetText(color.blizzard'Blizzard UI')
+        btn:SetText(color.blizzard(L'Blizzard UI'))
         btn:SetFrameLevel(btn:GetFrameLevel() + 2)
         btn:SetScript('OnClick',function()
             if AuctionFrame:IsVisible() then HideUIPanel(AuctionFrame) else ShowUIPanel(AuctionFrame) end

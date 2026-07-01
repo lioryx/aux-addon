@@ -1,6 +1,7 @@
 module 'aux.core.crafting'
 
 local T = require 'T'
+local L = require('aux.locale').t
 local aux = require 'aux'
 local info = require 'aux.util.info'
 local money = require 'aux.util.money'
@@ -22,9 +23,9 @@ end
 
 do
     local function cost_label(cost)
-        local label = LIGHTYELLOW_FONT_COLOR_CODE .. '(Total Cost: ' .. FONT_COLOR_CODE_CLOSE
+        local label = LIGHTYELLOW_FONT_COLOR_CODE .. L'(Total Cost: ' .. FONT_COLOR_CODE_CLOSE
         label = label .. (cost and money.to_string2(cost, nil, LIGHTYELLOW_FONT_COLOR_CODE) or GRAY_FONT_COLOR_CODE .. '?' .. FONT_COLOR_CODE_CLOSE)
-        label = label .. LIGHTYELLOW_FONT_COLOR_CODE .. ')' .. FONT_COLOR_CODE_CLOSE
+        label = label .. LIGHTYELLOW_FONT_COLOR_CODE .. L')' .. FONT_COLOR_CODE_CLOSE
         return label
     end
     local function hook_quest_item(f)

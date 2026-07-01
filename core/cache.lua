@@ -1,6 +1,7 @@
 module 'aux.util.info'
 
 local T = require 'T'
+local L = require('aux.locale').t
 local aux = require 'aux'
 local persistence = require 'aux.util.persistence'
 
@@ -205,11 +206,11 @@ end
 function M.populate_wdb(item_id)
 	item_id = item_id or MIN_ITEM_ID
 	if item_id > MAX_ITEM_ID then
-		aux.print('Cache populated.')
+		aux.print(L'Cache populated.')
 		return
 	end
 	if not GetItemInfo('item:' .. item_id) then
-		aux.print('Fetching item ' .. item_id .. '.')
+		aux.print(format(L'Fetching item %d.', item_id))
 		AuxTooltip:SetHyperlink('item:' .. item_id)
 	end
 	aux.thread(populate_wdb, item_id + 1)

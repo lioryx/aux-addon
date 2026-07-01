@@ -1,6 +1,7 @@
 module 'aux.tabs.search'
 
 local T = require 'T'
+local L = require('aux.locale').t
 local aux = require 'aux'
 local info = require 'aux.util.info'
 local filter_util = require 'aux.util.filter'
@@ -155,7 +156,7 @@ function start_real_time_scan(query, search, continuation)
 		auto_bid_validator = search.auto_bid_validator,
 		on_scan_start = function()
 			search.status_bar:update_status(.9999, .9999)
-			search.status_bar:set_text('Scanning last page ...')
+			search.status_bar:set_text(L'Scanning last page ...')
 		end,
 		on_page_loaded = function(_, _, last_page)
 			next_page = last_page
@@ -192,7 +193,7 @@ function start_real_time_scan(query, search, continuation)
 		end,
 		on_abort = function()
 			search.status_bar:update_status(1, 1)
-			search.status_bar:set_text('Scan paused')
+			search.status_bar:set_text(L'Scan paused')
 
 			search.continuation = next_page or not ignore_page and query.blizzard_query.first_page or true
 
@@ -233,9 +234,9 @@ function start_search(queries, continuation)
 		on_scan_start = function()
 			search.status_bar:update_status(0, 0)
 			if continuation then
-				search.status_bar:set_text('Resuming scan...')
+				search.status_bar:set_text(L'Resuming scan...')
 			else
-				search.status_bar:set_text('Scanning auctions...')
+				search.status_bar:set_text(L'Scanning auctions...')
 			end
 		end,
 		on_page_loaded = function(_, total_scan_pages)
@@ -244,7 +245,7 @@ function start_search(queries, continuation)
 			total_scan_pages = max(total_scan_pages, 1)
 			current_page = min(current_page, total_scan_pages)
 			search.status_bar:update_status((current_query - 1) / getn(queries), current_page / total_scan_pages)
-			search.status_bar:set_text(format('Scanning %d / %d (Page %d / %d)', current_query, total_queries, current_page, total_scan_pages))
+			search.status_bar:set_text(format(L'Scanning %d / %d (Page %d / %d)', current_query, total_queries, current_page, total_scan_pages))
 		end,
 		on_page_scanned = function()
 			search.table:SetDatabase()
@@ -263,7 +264,7 @@ function start_search(queries, continuation)
 		end,
 		on_complete = function()
 			search.status_bar:update_status(1, 1)
-			search.status_bar:set_text('Scan complete')
+			search.status_bar:set_text(L'Scan complete')
 
 			if current_search() == search and frame.results:IsVisible() and getn(search.records) == 0 then
 				set_subtab(SAVED)
@@ -274,7 +275,7 @@ function start_search(queries, continuation)
 		end,
 		on_abort = function()
 			search.status_bar:update_status(1, 1)
-			search.status_bar:set_text('Scan paused')
+			search.status_bar:set_text(L'Scan paused')
 
 			if current_query then
 				search.continuation = {current_query, current_page + 1}
@@ -306,14 +307,14 @@ function M.execute(resume, real_time)
 
 	local queries, error = filter_util.queries(filter_string)
 	if not queries then
-		aux.print('Invalid filter:', error)
+		aux.print(L'Invalid filter:', error)
 		return
 	elseif real_time then
 		if getn(queries) > 1 then
-			aux.print('Error: The real time mode does not support multi-queries')
+			aux.print(L'Error: The real time mode does not support multi-queries')
 			return
 		elseif queries[1].blizzard_query.first_page or queries[1].blizzard_query.last_page then
-			aux.print('Error: The real time mode does not support page ranges')
+			aux.print(L'Error: The real time mode does not support page ranges')
 			return
 		end
 	end
