@@ -34,6 +34,17 @@ function update_search_listings()
 		))
 	end
 	recent_searches_listing:SetData(recent_search_rows)
+	if getn(recent_searches) > 0 then
+		clear_recent_searches_button:Enable()
+	else
+		clear_recent_searches_button:Disable()
+	end
+end
+
+function clear_recent_searches()
+	while tremove(recent_searches) do end
+	FauxScrollFrame_SetOffset(recent_searches_listing.scrollFrame, 0)
+	update_search_listings()
 end
 
 function new_recent_search(filter_string, prettified)

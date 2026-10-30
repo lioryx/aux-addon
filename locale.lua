@@ -50,6 +50,7 @@ if locale == 'zhCN' or locale == 'zhTW' then
 	L['Auto']           = '自动'
 	L['Favorite Searches'] = '收藏的搜索'
 	L['Recent Searches']   = '最近的搜索'
+	L['Clear Recent Searches'] = '清除搜索记录'
 	L['Post Filter:']   = '后置筛选：'
 
 	-- 搜索弹窗 (tabs/search/core.lua)

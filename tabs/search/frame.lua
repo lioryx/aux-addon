@@ -249,6 +249,14 @@ function aux.handle.INIT_UI()
         btn:SetScript('OnClick', function()
             add_favorite(search_box:GetText())
         end)
+
+        local clear_button = gui.button(frame.saved)
+        clear_button:SetPoint('LEFT', btn, 'RIGHT', 5, 0)
+        clear_button:SetWidth(180)
+        clear_button:SetText(L'Clear Recent Searches')
+        clear_button:SetScript('OnClick', clear_recent_searches)
+        clear_button:Disable()
+        clear_recent_searches_button = clear_button
     end
     do
         local btn1 = gui.button(frame.filter)

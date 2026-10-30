@@ -328,13 +328,13 @@ function M.execute(resume, real_time)
 			else
 				current_search().filter_string = filter_string
 			end
-			new_recent_search(filter_string, aux.join(aux.map(aux.copy(queries), function(filter) return filter.prettified end), ';'))
 		else
 			local search = current_search()
 			search.records = T.acquire()
 			search.table:Reset()
 			search.table:SetDatabase(search.records)
 		end
+		new_recent_search(filter_string, aux.join(aux.map(aux.copy(queries), function(filter) return filter.prettified end), ';'))
 		local search = current_search()
 		search.first_page = first_page
 		search.last_page = last_page
