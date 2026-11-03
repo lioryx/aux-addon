@@ -8,7 +8,8 @@ local auction_listing = require 'aux.gui.auction_listing'
 local search_tab = require 'aux.tabs.search'
 
 function aux.handle.INIT_UI()
-    frame = CreateFrame('Frame', nil, aux.frame)
+    if gui.is_forever() then return end
+    frame = CreateFrame('Frame', nil, gui.page_parent())
     frame:SetAllPoints()
     frame:SetScript('OnUpdate', on_update)
     frame:Hide()

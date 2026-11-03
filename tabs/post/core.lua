@@ -73,6 +73,7 @@ function tab.OPEN()
 end
 
 function tab.CLOSE()
+    scan.abort(scan_id)
     selected_item = nil
     frame:Hide()
 end
@@ -198,9 +199,12 @@ function price_update()
 end
 
 function post_auctions()
+    validate_parameters()
+    if post_button:IsEnabled() == 0 then return end
 	if selected_item then
         local unit_start_price = get_unit_start_price()
         local unit_buyout_price = get_unit_buyout_price()
+        if gui.is_forever() and forever_buyout_only then unit_start_price = unit_buyout_price end
         local stack_size = stack_size_slider:GetValue()
         local stack_count
         stack_count = stack_count_slider:GetValue()
@@ -228,7 +232,7 @@ function post_auctions()
 					return
 				end
 				for i = 1, posted do
-                    record_auction(key, stack_size, unit_start_price * stack_size, unit_buyout_price, duration_code, UnitName'player')
+                    if not gui.is_forever() then record_auction(key, stack_size, unit_start_price * stack_size, unit_buyout_price, duration_code, UnitName'player') end
                 end
                 update_inventory_records()
 				local same
@@ -244,67 +248,27 @@ function post_auctions()
                     selected_item = nil
                 end
                 refresh = true
+                if gui.is_forever() and selected_item then refresh_entries() end
 			end
 		)
 	end
 end
 
 function M.post_auctions_bind()
-	if selected_item then
-        local unit_start_price = get_unit_start_price()
-        local unit_buyout_price = get_unit_buyout_price()
-        local stack_size = stack_size_slider:GetValue()
-        local stack_count
-        stack_count = stack_count_slider:GetValue()
-        local duration = UIDropDownMenu_GetSelectedValue(duration_dropdown)
-		local key = selected_item.key
-
-        local duration_code
-		if duration == DURATION_2 then
-            duration_code = 2
-		elseif duration == DURATION_8 then
-            duration_code = 3
-		elseif duration == DURATION_24 then
-            duration_code = 4
-		end
-
-		post.start(
-			key,
-			stack_size,
-			duration,
-            unit_start_price,
-            unit_buyout_price,
-			stack_count,
-			function(posted)
-				if not frame:IsShown() then
-					return
-				end
-				for i = 1, posted do
-                    record_auction(key, stack_size, unit_start_price * stack_size, unit_buyout_price, duration_code, UnitName'player')
-                end
-                update_inventory_records()
-				local same
-                for _, record in inventory_records do
-                    if record.key == key then
-	                    same = record
-	                    break
-                    end
-                end
-                if same then
-	                update_item(same)
-                else
-                    selected_item = nil
-                end
-                refresh = true
-			end
-		)
-	end
+    if frame:IsVisible() then post_auctions() end
 end
 
 function validate_parameters()
     if not selected_item then
         post_button:Disable()
         return
+    end
+    if gui.is_forever() then
+        if stack_count_slider:GetValue() < 1 or stack_size_slider:GetValue() < 1 then post_button:Disable(); return end
+        if forever_buyout_only then
+            if get_unit_buyout_price() > 0 then post_button:Enable() else post_button:Disable() end
+            return
+        end
     end
     if get_unit_buyout_price() > 0 and get_unit_start_price() > get_unit_buyout_price() then
         post_button:Disable()
@@ -368,8 +332,8 @@ function update_item_configuration()
             local duration_factor = UIDropDownMenu_GetSelectedValue(duration_dropdown) / 120
             local stack_size, stack_count = selected_item.max_charges and 1 or stack_size_slider:GetValue(), stack_count_slider:GetValue()
             local max_stack = selected_item.max_stack
-            local amount = floor(selected_item.unit_vendor_price * stack_size * duration_factor * (1 + (max_stack - stack_size) * 0.05) * deposit_factor) * stack_count
-            deposit:SetText(L'Deposit: ' .. money.to_string(amount, nil, nil, aux.color.text.enabled))
+            local amount = selected_item.unit_vendor_price and floor(selected_item.unit_vendor_price * stack_size * duration_factor * (1 + (max_stack - stack_size) * 0.05) * deposit_factor) * stack_count
+            deposit:SetText((gui.is_forever() and L'Estimated deposit: ' or L'Deposit: ') .. (amount and money.to_string(amount, nil, nil, aux.color.text.enabled) or L'Unknown'))
         end
 
         --vendor price
@@ -434,7 +398,7 @@ function update_item(item)
     local settings = read_settings(item.key)
 
     item.unit_vendor_price = unit_vendor_price(item.key)
-    if not item.unit_vendor_price then
+    if not item.unit_vendor_price and not gui.is_forever() then
         settings.hidden = true
         write_settings(settings, item.key)
         refresh = true
@@ -534,6 +498,7 @@ end
 function refresh_entries()
 	if selected_item then
         local item_key = selected_item.key
+        if gui.is_forever() then forever_post_records_reset(item_key) end
 		set_bid_selection()
         set_buyout_selection()
         bid_records[item_key], buyout_records[item_key] = nil, nil
@@ -551,6 +516,7 @@ function refresh_entries()
 			end,
 			on_auction = function(auction_record)
 				if auction_record.item_key == item_key then
+                    if gui.is_forever() then forever_post_record(item_key, auction_record) end
                     record_auction(
                         auction_record.item_key,
                         auction_record.aux_quantity,
@@ -616,6 +582,7 @@ function on_update()
         update_item_configuration()
         update_inventory_listing()
         update_auction_listings()
+        if gui.is_forever() then forever_post_render() end
     end
     validate_parameters()
 end

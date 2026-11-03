@@ -4,6 +4,7 @@ local T = require 'T'
 local aux = require 'aux'
 local info = require 'aux.util.info'
 local gui = require 'aux.gui'
+local media = require 'aux.forever.media'
 
 local ROW_HEIGHT = 39
 
@@ -97,7 +98,9 @@ function M.new(parent, on_click, selected)
 		local highlight = row:CreateTexture()
 		highlight:SetAllPoints(row)
 		highlight:Hide()
-        if not gui.is_blizzard() then
+        if gui.is_forever() then
+            highlight:SetTexture(media.path('row-highlight'))
+        elseif not gui.is_blizzard() then
             highlight:SetTexture(1, .9, 0, .4)
         else
             highlight:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])

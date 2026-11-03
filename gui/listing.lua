@@ -3,6 +3,7 @@ module 'aux.gui.listing'
 local T = require 'T'
 local aux = require 'aux'
 local gui = require 'aux.gui'
+local media = require 'aux.forever.media'
 
 local ROW_HEIGHT = 15
 local ROW_TEXT_SIZE = 14
@@ -178,7 +179,9 @@ local methods = {
 
 	    local tex = col:CreateTexture()
 	    tex:SetAllPoints()
-        if not gui.is_blizzard() then
+        if gui.is_forever() then
+            tex:SetTexture(media.path('header'));tex:SetTexCoord(0,1,0,1);tex:SetAlpha(1)
+        elseif not gui.is_blizzard() then
             tex:SetTexture([[Interface\AddOns\aux-AddOn\WorldStateFinalScore-Highlight]])
             tex:SetTexCoord(.017, 1, .083, .909)
             tex:SetAlpha(.5)
@@ -234,7 +237,9 @@ local methods = {
         end
         local highlight = row:CreateTexture()
         highlight:SetAllPoints()
-        if not gui.is_blizzard() then
+        if gui.is_forever() then
+            highlight:SetTexture(media.path('row-highlight'))
+        elseif not gui.is_blizzard() then
             highlight:SetTexture(1, .9, 0, .4)
         else
             highlight:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])

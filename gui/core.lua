@@ -2,6 +2,7 @@ module 'aux.gui'
 
 local T = require 'T'
 local aux = require 'aux'
+local media = require 'aux.forever.media'
 
 M.font = [[Fonts\ARIALN.TTF]]
 
@@ -104,13 +105,32 @@ do
 			end
 		end, 'MENU')
 		ToggleDropDownMenu(1, nil, menu, 'cursor')
+		if is_forever() then media.popup() end
 	end
 end
 
 local using_blizzard_theme = true
+local current_theme = 'blizzard'
+function M.resolve_theme(account)
+    if type(account) ~= 'table' then return 'forever' end
+    local theme = account.theme
+    if theme == 'forever' or theme == 'modern' then return theme end
+    return 'blizzard'
+end
+function M.get_theme() return current_theme end
+function M.is_forever() return current_theme == 'forever' end
+function M.page_parent() return aux.frame.page_host or aux.frame end
+function M.apply_scale(scale)
+    if is_forever() then
+        scale = math.min(scale, UIParent:GetWidth() * .9 / 960, UIParent:GetHeight() * .9 / 680)
+    end
+    aux.frame:SetScale(scale)
+end
 
 function M.set_global_theme(theme)
-    using_blizzard_theme = theme ~= 'modern'
+    current_theme = theme or 'blizzard'
+    using_blizzard_theme = current_theme == 'blizzard'
+    if is_forever() then M.font = GameFontNormal:GetFont() end
 end
 
 function M.is_blizzard()
@@ -123,6 +143,7 @@ function M.set_size(frame, width, height)
 end
 
 function M.set_frame_style(frame, backdrop_color, border_color, left, right, top, bottom)
+    if is_forever() then return media.panel(frame) end
     if not is_blizzard() then
         frame:SetBackdrop{bgFile=[[Interface\Buttons\WHITE8X8]], edgeFile=[[Interface\Buttons\WHITE8X8]], edgeSize=1.5, tile=true, insets={left=left, right=right, top=top, bottom=bottom}}
         frame:SetBackdropColor(backdrop_color())
@@ -149,6 +170,7 @@ function M.set_frame_style(frame, backdrop_color, border_color, left, right, top
 end
 
 function M.set_window_style(frame, left, right, top, bottom)
+    if is_forever() then return media.panel(frame, true) end
     set_frame_style(frame, aux.color.window.background, aux.color.window.border, left, right, top, bottom)
 end
 
@@ -166,6 +188,11 @@ function M.set_scrollbar_style(scrollFrame, points)
     scrollBar:ClearAllPoints()
     for _, pt in ipairs(points) do
         scrollBar:SetPoint(unpack(pt))
+    end
+
+    if is_forever() then
+        media.scrollbar(scrollBar, _G[scrollBar:GetName() .. 'ScrollUpButton'], _G[scrollBar:GetName() .. 'ScrollDownButton'])
+        return
     end
     
     if not is_blizzard() then
@@ -253,6 +280,7 @@ end
 
 function M.button(parent, text_height)
     text_height = text_height or font_size.large
+    if is_forever() then return media.button(parent, text_height) end
     local button = CreateFrame('Button', unique_name(), parent, is_blizzard() and "UIPanelButtonTemplate2" or nil)
     set_size(button, 80, 24)
     
@@ -428,7 +456,9 @@ function M.editbox(parent)
     editbox:SetMaxLetters(nil)
     editbox:SetHeight(24)
     editbox:SetTextColor(0, 0, 0, 0)
-    if not is_blizzard() then
+    if is_forever() then
+        media.input(editbox)
+    elseif not is_blizzard() then
         set_content_style(editbox)
     end
     editbox:SetScript('OnEscapePressed', function()
@@ -491,8 +521,8 @@ function M.editbox(parent)
 	    self.overlay:SetFont(font, size)
     end
     local overlay = label(editbox)
-    overlay:SetPoint('LEFT', 1.5, 0)
-    overlay:SetPoint('RIGHT', -1.5, 0)
+    overlay:SetPoint('LEFT', is_forever() and 8 or 1.5, 0)
+    overlay:SetPoint('RIGHT', is_forever() and -8 or -1.5, 0)
     overlay:SetTextColor(aux.color.text.enabled())
     editbox.overlay = overlay
     editbox:SetAlignment('LEFT')
@@ -513,13 +543,15 @@ do
 	    local level = parent:GetFrameLevel()
 	    self:SetFrameLevel(level + 1)
 	    do
-	        local status_bar = CreateFrame('StatusBar', nil, self, 'TextStatusBar')
+	        local status_bar = CreateFrame('StatusBar', nil, self, not is_forever() and 'TextStatusBar' or nil)
 	        status_bar:SetOrientation('HORIZONTAL')
 	        status_bar:SetMinMaxValues(0, 1)
 	        status_bar:SetAllPoints()
-	        status_bar:SetStatusBarTexture(is_blizzard() and [[Interface\Glues\LoadingBar\Loading-BarFill]] or 
+	        status_bar:SetStatusBarTexture(is_forever() and media.path('title-bg') or is_blizzard() and [[Interface\Glues\LoadingBar\Loading-BarFill]] or 
                 [[Interface\Buttons\WHITE8X8]])
-            if not is_blizzard() then
+            if is_forever() then
+                status_bar:SetStatusBarColor(.65, .52, .26, 1)
+            elseif not is_blizzard() then
 	            status_bar:SetStatusBarColor(.42, .42, .42, 1)
             end
 	        status_bar:SetFrameLevel(level + 2)
@@ -527,13 +559,15 @@ do
 	        self.secondary_status_bar = status_bar
 	    end
 	    do
-	        local status_bar = CreateFrame('StatusBar', nil, self, 'TextStatusBar')
+	        local status_bar = CreateFrame('StatusBar', nil, self, not is_forever() and 'TextStatusBar' or nil)
 	        status_bar:SetOrientation('HORIZONTAL')
 	        status_bar:SetMinMaxValues(0, 1)
 	        status_bar:SetAllPoints()
-	        status_bar:SetStatusBarTexture(is_blizzard() and [[Interface\Glues\LoadingBar\Loading-BarFill]] or 
+	        status_bar:SetStatusBarTexture(is_forever() and media.path('row-highlight') or is_blizzard() and [[Interface\Glues\LoadingBar\Loading-BarFill]] or 
                 [[Interface\Buttons\WHITE8X8]])
-            if not is_blizzard() then
+            if is_forever() then
+                status_bar:SetStatusBarColor(.8, .65, .3, 1)
+            elseif not is_blizzard() then
 	            status_bar:SetStatusBarColor(.19, .22, .33, 1)
             end
 	        status_bar:SetFrameLevel(level + 3)
@@ -578,6 +612,26 @@ end
 function M.item(parent)
     local item = CreateFrame('Frame', nil, parent)
     set_size(item, 260, 40)
+    if is_forever() then
+        local btn = CreateFrame('CheckButton', unique_name(), item)
+        item.button = btn
+        set_size(btn, 40, 40)
+        btn:SetPoint('LEFT', 2, .5)
+        btn:RegisterForClicks()
+        media.panel(btn)
+        item.texture = btn:CreateTexture(nil, 'ARTWORK')
+        item.texture:SetPoint('TOPLEFT', 4, -4)
+        item.texture:SetPoint('BOTTOMRIGHT', -4, 4)
+        item.texture:SetTexCoord(.06, .94, .06, .94)
+        item.name = label(btn, font_size.medium)
+        item.name:SetJustifyH('LEFT')
+        item.name:SetPoint('LEFT', btn, 'RIGHT', 10, 0)
+        item.name:SetPoint('RIGHT', item, 'RIGHT', -10, .5)
+        item.count = label(btn, 17)
+        item.count:SetPoint('BOTTOMRIGHT', -3, 3)
+        item.count:SetJustifyH('RIGHT')
+        return item
+    end
     local btn = CreateFrame('CheckButton', unique_name(), item, 'ActionButtonTemplate')
     item.button = btn
     btn:SetPoint('LEFT', 2, .5)
@@ -597,7 +651,7 @@ end
 function M.label(parent, size)
     local label = parent:CreateFontString()
     label:SetFont(font, size or font_size.small)
-    label:SetTextColor(aux.color.label.enabled())
+    if is_forever() then label:SetTextColor(1,.82,0) else label:SetTextColor(aux.color.label.enabled()) end
     return label
 end
 
@@ -630,7 +684,12 @@ end
 function M.dropdown(parent)
     local dropdown = CreateFrame('Frame', unique_name(), parent, 'UIDropDownMenuTemplate')
 
-    if not is_blizzard() then
+    if is_forever() then
+        dropdown.forever_input_art = media.strip(dropdown, 'input-bg', 'BACKGROUND', 128, 6)
+        _G[dropdown:GetName() .. 'Left']:Hide()
+        _G[dropdown:GetName() .. 'Middle']:Hide()
+        _G[dropdown:GetName() .. 'Right']:Hide()
+    elseif not is_blizzard() then
         set_content_style(dropdown, 0, 0, 4, 4)
 
         _G[dropdown:GetName() .. 'Left']:Hide()
@@ -667,6 +726,23 @@ function M.dropdown(parent)
         text:SetShadowColor(0, 0, 0, 0)
     end
 
+    if is_forever() then
+        button:SetNormalTexture(media.path('arrow-down'))
+        button:SetPushedTexture(media.path('arrow-down'))
+        button:SetDisabledTexture(media.path('arrow-down'))
+        button:SetHighlightTexture(media.path('row-highlight'))
+        button:GetNormalTexture():SetTexCoord(0, 1, 0, 1)
+        button:GetPushedTexture():SetTexCoord(0, 1, 0, 1)
+        button:GetPushedTexture():SetVertexColor(.65, .65, .65)
+        button:GetDisabledTexture():SetTexCoord(0, 1, 0, 1)
+        button:GetDisabledTexture():SetVertexColor(.35, .35, .35)
+        local original_click = button:GetScript('OnClick')
+        button:SetScript('OnClick', function()
+            if original_click then original_click() end
+            media.popup()
+        end)
+    end
+
     return dropdown
 end
 
@@ -684,7 +760,11 @@ function M.slider(parent)
         set_panel_style(slider)
         local thumb_texture = slider:CreateTexture(nil, 'ARTWORK')
         thumb_texture:SetPoint('CENTER', 0, 0)
-        thumb_texture:SetTexture(aux.color.content.background())
+        if is_forever() then
+            thumb_texture:SetTexture(media.path('scroll-thumb'))
+        else
+            thumb_texture:SetTexture(aux.color.content.background())
+        end
         thumb_texture:SetHeight(18)
         thumb_texture:SetWidth(8)
         set_size(thumb_texture, 8, 18)
@@ -716,6 +796,11 @@ function M.slider(parent)
 end
 
 function M.checkbox(parent)
+    if is_forever() then
+        local checkbox = CreateFrame('CheckButton', nil, parent)
+        media.check(checkbox)
+        return checkbox
+    end
     local checkbox = CreateFrame('CheckButton', nil, parent, 'UICheckButtonTemplate')
     local size = is_blizzard() and 24 or 16
     checkbox:SetWidth(size)

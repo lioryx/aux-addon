@@ -15,7 +15,7 @@ function aux.handle.INIT_UI()
     local FILTER_SPACING = 28.5
     local THEME_PADDING = gui.is_blizzard() and 4 or 0
 
-    frame = CreateFrame('Frame', nil, aux.frame)
+    frame = CreateFrame('Frame', nil, gui.page_parent())
     frame:SetAllPoints()
     frame:SetScript('OnUpdate', on_update)
     frame:Hide()

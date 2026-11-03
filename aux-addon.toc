@@ -16,6 +16,9 @@ util.lua
 control.lua
 color.lua
 gui\core.lua
+themes\media.lua
+themes\widgets.lua
+themes\forever.lua
 frame.lua
 util\persistence.lua
 util\sort.lua
@@ -44,15 +47,18 @@ tabs\search\results.lua
 tabs\search\saved.lua
 tabs\search\filter.lua
 tabs\search\frame.lua
+themes\search.lua
 
 tabs\post\core.lua
 tabs\post\frame.lua
+themes\post.lua
 
 tabs\auctions\core.lua
 tabs\auctions\frame.lua
 
 tabs\bids\core.lua
 tabs\bids\frame.lua
+themes\management.lua
 
 core\crafting.lua
 

@@ -3,6 +3,7 @@ module 'aux.tabs.search'
 local aux = require 'aux'
 local L = require('aux.locale').t
 local info = require 'aux.util.info'
+local gui = require 'aux.gui'
 
 local tab = aux.tab(L'Search')
 
@@ -21,22 +22,26 @@ function aux.handle.LOAD()
 end
 
 function tab.OPEN()
+    if gui.is_forever() then return forever_open() end
     frame:Show()
     update_search_listings()
     update_filter_display()
 end
 
 function tab.CLOSE()
+    if gui.is_forever() then current_search().table:SetSelectedRecord(); scan_abort_advanced(); return forever_close() end
     current_search().table:SetSelectedRecord()
     frame:Hide()
 end
 
 function tab.CLICK_LINK(item_info)
+    if gui.is_forever() then return forever_item_search(item_info) end
 	set_filter(strlower(item_info.name) .. '/exact')
 	execute(nil, false)
 end
 
 function tab.USE_ITEM(item_info)
+    if gui.is_forever() then return forever_item_search(item_info) end
 	set_filter(strlower(info.item(item_info.item_id).name) .. '/exact')
 	execute(nil, false)
 end

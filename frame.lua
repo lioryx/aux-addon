@@ -10,6 +10,7 @@ function handle.LOAD()
 end
 
 function handle.INIT_UI()
+    if gui.is_forever() then return build_forever() end
     do
         local frame = CreateFrame('Frame', 'aux_frame', UIParent)
         tinsert(UISpecialFrames, 'aux_frame')

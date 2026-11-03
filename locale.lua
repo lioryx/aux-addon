@@ -205,6 +205,48 @@ if locale == 'zhCN' or locale == 'zhTW' then
 
 	-- 按键绑定显示名 (localization.lua)
 	L['Aux Post'] = '上架拍卖'
+	L['Buy'] = '购买'
+	L['Sell'] = '出售'
+	L['Browse Auctions'] = '浏览拍卖'
+	L['Post Auctions'] = '发布拍卖'
+end
+
+if locale == 'zhCN' or locale == 'zhTW' then
+    translations['Themes: blizzard / modern / forever. Use /aux theme to switch.'] = '主题：blizzard / modern / forever。使用 /aux theme 切换。'
+    translations['Not enough money'] = '金钱不足'
+    translations['Filters'] = '过滤器'
+    translations['Advanced'] = '高级'
+    translations['Back to browse'] = '返回浏览'
+    translations['Back'] = '返回'
+    translations['Price'] = '价格'
+    translations['Available'] = '可用'
+    translations['Quantity'] = '数量'
+    translations['Bid only'] = '仅竞标'
+    translations['Buyable quantity: '] = '可购买数量：'
+    translations['No items found'] = '未发现物品'
+    translations['Scanned results only'] = '仅显示已扫描结果'
+    translations['Result limit reached: showing scanned auctions only'] = '达到结果上限：仅显示已扫描拍卖'
+    translations['Invalid level range'] = '等级范围无效'
+    translations['Favorite items'] = '收藏物品'
+    translations['Right-click an item to favorite it. Favorites appear here when you open the auction house.'] = '右键点击物品即可收藏。打开拍卖行时，收藏的物品会显示在这里。'
+    translations['Buyout only'] = '一口价模式'
+    translations['Inventory'] = '选择背包物品'
+    translations['Create Auction'] = '创建拍卖'
+    translations['Cancel Auction'] = '取消拍卖'
+    translations['Estimated deposit: '] = '预计保证金：'
+    translations['Unknown'] = '未知'
+    translations['Total: '] = '总价：'
+    translations['Total: determined by automatic pricing'] = '总价：由自动定价确定'
+    translations['Historical value: '] = '历史参考价：'
+    translations['Starting price 0 enables automatic pricing; the final buyout may change.'] = '起拍价为 0 将启用自动定价，最终一口价可能调整。'
+    translations['Starting price per charge'] = '每次充能起拍价'
+    translations['Buyout price per charge'] = '每次充能一口价'
+    translations['Bid / unit'] = '竞标单价'
+    translations['Buyout / unit'] = '一口单价'
+    translations['Buy'] = '购买'
+    translations['Sell'] = '出售'
+    translations['Browse Auctions'] = '浏览拍卖'
+    translations['Post Auctions'] = '发布拍卖'
 end
 
 -- 翻译查找：命中返回译文，否则回退到 key 本身（即英文）。

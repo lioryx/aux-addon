@@ -293,6 +293,7 @@ function start_search(queries, continuation)
 end
 
 function M.execute(resume, real_time)
+    if gui.is_forever() then forever_advanced(true) end
 
 	if resume then
 		real_time = current_search().real_time
@@ -365,6 +366,20 @@ do
 	local IDLE, SEARCHING, FOUND = aux.enum(3)
 	local state = IDLE
 	local found_index
+	local selection_version = 0
+
+	function scan_abort_advanced()
+		selection_version = selection_version + 1
+		scan.abort(search_scan_id)
+		scan.abort(scan_id)
+		scan_id = 0
+		state = IDLE
+		found_index = nil
+		local search = current_search()
+		if search and search.table then search.table:SetSelectedRecord() end
+		if bid_button then bid_button:Disable() end
+		if buyout_button then buyout_button:Disable() end
+	end
 
 	function find_auction(record)
 		local search = current_search()
@@ -373,19 +388,24 @@ do
 			return
 		end
 
+		selection_version = selection_version + 1
+        local version = selection_version
 		scan.abort(scan_id)
 		state = SEARCHING
 		scan_id = scan_util.find(
 			record,
 			current_search().status_bar,
 			function()
+				if version ~= selection_version then return end
 				state = IDLE
 			end,
 			function()
+				if version ~= selection_version then return end
 				state = IDLE
 				search.table:RemoveAuctionRecord(record)
 			end,
 			function(index)
+                if version ~= selection_version or not frame:IsVisible() or current_search() ~= search then return end
 				if search.table:GetSelection() and search.table:GetSelection().record ~= record then
 					return
 				end

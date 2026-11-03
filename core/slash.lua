@@ -1,6 +1,7 @@
 module 'aux.core.slash'
 
 local T = require 'T'
+local gui = require 'aux.gui'
 local L = require('aux.locale').t
 local aux = require 'aux'
 local history = require 'aux.core.history'
@@ -23,7 +24,8 @@ function SlashCmdList.AUX(command)
     local tooltip_settings = aux.character_data.tooltip
     if arguments[1] == 'scale' and tonumber(arguments[2]) then
     	local scale = tonumber(arguments[2])
-	    aux.frame:SetScale(scale)
+	    if scale <= 0 then return end
+        gui.apply_scale(scale)
 	    aux.account_data.scale = scale
     elseif arguments[1] == 'uc' then
         aux.account_data.undercut = not aux.account_data.undercut
@@ -76,8 +78,8 @@ function SlashCmdList.AUX(command)
 	elseif arguments[1] == 'sharing' then
 		aux.account_data.sharing = not aux.account_data.sharing
 		aux.print(L'sharing ' .. status(aux.account_data.sharing))
-    elseif arguments[1] == 'theme' and (arguments[2] == nil or (arguments[2] == 'modern' or arguments[2] == 'blizzard')) then
-        aux.account_data.theme = arguments[2] or (aux.account_data.theme == 'blizzard' and 'modern' or 'blizzard')
+    elseif arguments[1] == 'theme' and (arguments[2] == nil or (arguments[2] == 'modern' or arguments[2] == 'blizzard' or arguments[2] == 'forever')) then
+        aux.account_data.theme = arguments[2] or (({blizzard='modern', modern='forever', forever='blizzard'})[aux.account_data.theme] or 'blizzard')
         aux.print(L'theme ' .. aux.color.blue(aux.account_data.theme))
         warn_reload()
 	elseif arguments[1] == 'show' and arguments[2] == 'hidden' then
@@ -110,7 +112,7 @@ function SlashCmdList.AUX(command)
 		aux.print('- populate wdb')
 		aux.print('- sharing [' .. status(aux.account_data.sharing) .. ']')
         aux.print('- theme [' .. aux.color[aux.account_data.theme == 'blizzard' and 'green' or 'red']('blizzard') .. ' | ' .. 
-            aux.color[aux.account_data.theme == 'modern' and 'green' or 'red']('modern') .. ']')
+            aux.color[aux.account_data.theme == 'modern' and 'green' or 'red']('modern') .. ' | ' .. aux.color[aux.account_data.theme == 'forever' and 'green' or 'red']('forever') .. ']')
 		aux.print('- show hidden [' .. status(aux.account_data.showhidden) .. ']')
 		aux.print('- purchase summary [' .. status(aux.account_data.purchase_summary) .. ']')
     end

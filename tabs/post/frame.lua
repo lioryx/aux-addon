@@ -10,9 +10,10 @@ local item_listing = require 'aux.gui.item_listing'
 local search_tab = require 'aux.tabs.search'
 
 function aux.handle.INIT_UI()
+    if gui.is_forever() then return end
     local THEME_PADDING = gui.is_blizzard() and 6.5 or 2.5
 
-    frame = CreateFrame('Frame', nil, aux.frame)
+    frame = CreateFrame('Frame', nil, gui.page_parent())
     frame:SetAllPoints()
     frame:SetScript('OnUpdate', on_update)
     frame:Hide()

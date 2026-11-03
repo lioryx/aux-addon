@@ -8,6 +8,7 @@ local sort_util = require 'aux.util.sort'
 local money = require 'aux.util.money'
 local history = require 'aux.core.history'
 local gui = require 'aux.gui'
+local media = require 'aux.forever.media'
 local tooltip = require 'aux.core.tooltip'
 
 local price_per_unit = false
@@ -705,7 +706,9 @@ local methods = {
 
         for _, cell in self.headCells do
             local tex = cell:GetNormalTexture()
-            if not gui.is_blizzard() then
+            if gui.is_forever() then
+                tex:SetTexture(media.path('header'));tex:SetTexCoord(0,1,0,1);tex:SetAlpha(1);tex:SetVertexColor(1,1,1)
+            elseif not gui.is_blizzard() then
                 tex:SetTexture[[Interface\AddOns\aux-AddOn\WorldStateFinalScore-Highlight]]
                 tex:SetTexCoord(.017, 1, .083, .909)
                 tex:SetAlpha(.5)
@@ -720,13 +723,17 @@ local methods = {
             local last_sort = self.sorts[1]
             local tex = self.headCells[last_sort.index]:GetNormalTexture()
             if last_sort.descending then
-                if not gui.is_blizzard() then
+                if gui.is_forever() then
+                    tex:SetVertexColor(1,.85,.4)
+                elseif not gui.is_blizzard() then
                     tex:SetTexture(.8, .6, 1, .8)
                 else
                     tex:SetVertexColor(0.75, .5, 1)
                 end
             else
-                if not gui.is_blizzard() then
+                if gui.is_forever() then
+                    tex:SetVertexColor(1,.85,.4)
+                elseif not gui.is_blizzard() then
                     tex:SetTexture(.6, .8, 1, .8)
                 else
                     tex:SetVertexColor(.5, .75, 1)
@@ -979,7 +986,9 @@ function M.new(parent, rows, columns)
         local highlight = cell:CreateTexture()
         tex:SetAllPoints()
         highlight:SetAllPoints()
-        if not gui.is_blizzard() then
+        if gui.is_forever() then
+            tex:SetTexture(media.path('header'));tex:SetTexCoord(0,1,0,1);tex:SetAlpha(1)
+        elseif not gui.is_blizzard() then
             tex:SetTexture([[Interface\AddOns\aux-AddOn\WorldStateFinalScore-Highlight]])
             tex:SetTexCoord(.017, 1, .083, .909)
             tex:SetAlpha(.5)
@@ -993,6 +1002,7 @@ function M.new(parent, rows, columns)
             highlight:SetTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
             highlight:SetTexCoord(0.1, 0.8, 0, 1)
         end
+        if gui.is_forever() then highlight:SetTexture(media.path('row-highlight'));highlight:SetTexCoord(0,1,0,1) end
         highlight:SetAlpha(.2)
         cell:SetNormalTexture(tex)
         cell:SetHighlightTexture(highlight)
@@ -1019,7 +1029,9 @@ function M.new(parent, rows, columns)
         end
         local highlight = row:CreateTexture()
         highlight:SetAllPoints()
-        if not gui.is_blizzard() then
+        if gui.is_forever() then
+            highlight:SetTexture(media.path('row-highlight'))
+        elseif not gui.is_blizzard() then
             highlight:SetTexture(1, .9, 0, .5)
         else
             highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")

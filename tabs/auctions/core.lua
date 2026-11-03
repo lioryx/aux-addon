@@ -1,6 +1,8 @@
 module 'aux.tabs.auctions'
 
 local T = require 'T'
+local gui = require 'aux.gui'
+local listing_scan_id = 0
 local L = require('aux.locale').t
 local aux = require 'aux'
 local scan_util = require 'aux.util.scan'
@@ -16,21 +18,24 @@ function tab.OPEN()
 end
 
 function tab.CLOSE()
+    if gui.is_forever() then reset_forever_selection(); scan.abort(listing_scan_id); listing:SetSelectedRecord() end
     frame:Hide()
 end
 
 function update_listing()
+    if gui.is_forever() then return forever_management_update() end
     listing:SetDatabase(auction_records)
 end
 
 function M.scan_auctions()
+    if gui.is_forever() then reset_forever_selection(); scan.abort(listing_scan_id); listing:SetSelectedRecord() end
 
     status_bar:update_status(0, 0)
     status_bar:set_text(L'Scanning auctions...')
 
     T.wipe(auction_records)
     update_listing()
-    scan.start{
+    listing_scan_id = scan.start{
         type = 'owner',
         queries = {{blizzard_query = T.acquire()}},
         on_page_loaded = function(page, total_pages)
@@ -57,10 +62,19 @@ do
     local IDLE, SEARCHING, FOUND = aux.enum(3)
     local state = IDLE
     local found_index
+    local version = 0
+    function reset_forever_selection()
+        version=version+1
+        scan.abort(scan_id)
+        state=IDLE
+        if frame then cancel_button:Disable() end
+    end
 
     function find_auction(record)
         if not listing:ContainsRecord(record) then return end
 
+        version=version+1
+        local token=version
         scan.abort(scan_id)
         state = SEARCHING
         scan_id = scan_util.find(
@@ -69,6 +83,7 @@ do
             function() state = IDLE end,
             function() state = IDLE; listing:RemoveAuctionRecord(record) end,
             function(index)
+                if token~=version or not frame:IsVisible() or not listing:GetSelection() or listing:GetSelection().record~=record then return end
                 state = FOUND
                 found_index = index
 

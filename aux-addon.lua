@@ -41,13 +41,13 @@ do
                 auction_ui_loaded()
 			end
 		elseif event == 'VARIABLES_LOADED' then
-            gui.set_global_theme(aux and aux.account and aux.account.theme)
+            gui.set_global_theme(gui.resolve_theme(aux and aux.account))
             for _, f in handlers_INIT_UI do f() end
             for _, f in handlers_LOAD do f() end
 		elseif event == 'PLAYER_LOGIN' then
 			for _, f in handlers_LOAD2 do f() end
 			print(L'loaded - /aux')
-			DEFAULT_CHAT_FRAME:AddMessage(LIGHTYELLOW_FONT_COLOR_CODE .. L'aux now comes with a new blizz-like theme. If you wish to switch between themes, use /aux theme')
+			DEFAULT_CHAT_FRAME:AddMessage(LIGHTYELLOW_FONT_COLOR_CODE .. L'Themes: blizzard / modern / forever. Use /aux theme to switch.')
 		else
 			_M[event]()
 		end
@@ -77,9 +77,10 @@ function handle.LOAD()
         merchant_buy = {},
         merchant_sell = {},
         sharing = true,
-        theme = 'blizzard',
+        theme = gui.get_theme(),
         purchase_summary = true,
     })
+    account_data.theme = gui.get_theme()
     do
         local key = format('%s|%s', GetCVar'realmName', UnitName'player')
         aux.character[key] = aux.character[key] or {}
@@ -210,7 +211,7 @@ do
 end
 
 function handle.LOAD2()
-	frame:SetScale(account_data.scale)
+	gui.apply_scale(account_data.scale)
 end
 
 function AUCTION_HOUSE_SHOW()
