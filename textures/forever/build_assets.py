@@ -75,7 +75,7 @@ class Art:
     def save(self, name):
         self.image.save(ROOT / (name + ".tga"), compression=None)
         (SVG / (name + ".svg")).write_text('<svg xmlns="http://www.w3.org/2000/svg" width="%s" height="%s" viewBox="0 0 %s %s"><defs>%s</defs>%s</svg>\n' % (
-            self.w,self.h,self.w,self.h,"".join(self.defs),"".join(self.svg)),encoding="utf-8")
+            self.w,self.h,self.w,self.h,"".join(self.defs),"".join(self.svg)),encoding="utf-8",newline='\n')
 
 
 def background(name, base, amplitude=3):
@@ -117,6 +117,9 @@ def surface(name,w=256,h=32,palette=None,border=None):
 def edge_atlas(name,metal):
     a=Art(128,16)
     # Standard Backdrop edge atlas: L, R, T, B, TL, TR, BL, BR.
+    # All four straight edges are vertical strips in the atlas. Backdrop rotates
+    # T/B when rendering, so their bevel runs across X just like L/R. Drawing
+    # horizontal bands here produces repeated teeth along the window border.
     # Each tile has a transparent interior and the same seven-pixel bevel.
     shade=[(9,8,6),metal[0],metal[1],metal[2],metal[3],(25,22,17),(7,7,6)]
     for tile in range(8):
@@ -124,8 +127,8 @@ def edge_atlas(name,metal):
         for i,c in enumerate(shade):
             if tile==0: a.rect((x+i,0,x+i,15),c)
             elif tile==1: a.rect((x+15-i,0,x+15-i,15),c)
-            elif tile==2: a.rect((x,i,x+15,i),c)
-            elif tile==3: a.rect((x,15-i,x+15,15-i),c)
+            elif tile==2: a.rect((x+i,0,x+i,15),c)
+            elif tile==3: a.rect((x+15-i,0,x+15-i,15),c)
             elif tile==4:
                 a.line([(x+i,15),(x+i,i),(x+15,i)],c)
             elif tile==5:
@@ -199,7 +202,9 @@ All TGA dimensions are powers of two and exports are uncompressed RGBA.
 
 * `window-edge` and `panel-edge`: 128 x 16, eight 16 x 16 cells ordered
   left, right, top, bottom, top-left, top-right, bottom-left, bottom-right.
-  Use Backdrop edgeSize 16; the painted bevel occupies seven pixels.
+  All four straight-edge cells contain vertical strips: Backdrop rotates the
+  top/bottom cells while tiling. At edgeSize 16 the painted bevel occupies
+  seven pixels; smaller edge sizes scale it proportionally.
 * Buttons, tabs, input and headers reserve six pixels for end caps. Keep the
   left/right caps fixed and stretch their center, or use nine-slice rendering.
 * `check-on` is a transparent check-mark overlay for `check-off`.
@@ -207,4 +212,4 @@ All TGA dimensions are powers of two and exports are uncompressed RGBA.
 * `row-highlight` is a translucent gold wash with transparent horizontal ends.
 
 No fonts, coin images or item/character artwork are included in this batch.
-''',encoding='utf-8')
+''',encoding='utf-8',newline='\n')

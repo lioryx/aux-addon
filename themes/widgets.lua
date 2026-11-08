@@ -56,7 +56,11 @@ function M.check(parent,label,callback)
     return b
 end
 -- Recycled visible rows only; headers and scroll offset survive data refreshes.
-function M.list(parent,columns,click)
+function M.list(parent,columns,click,options)
+    options=options or {}
+    local head_height=options.headers==false and 0 or 26
+    local row_height=23
+    local row_top=head_height>0 and head_height+3 or 0
     local f=CreateFrame('Frame',nil,parent)
     f.rows={}; f.data={}; f.offset=0; f.columns=columns
     local bar=CreateFrame('Slider',gui.unique_name(),f)
@@ -68,23 +72,37 @@ function M.list(parent,columns,click)
         b:SetPoint(i==1 and 'BOTTOM' or 'TOP',bar,i==1 and 'TOP' or 'BOTTOM',0,0)
         b:SetScript('OnClick',function() bar:SetValue(bar:GetValue()+delta) end)
     end
-    bar:SetPoint('TOPRIGHT',-3,-44);bar:SetPoint('BOTTOMRIGHT',-3,20)
+    bar:SetPoint('TOPRIGHT',-3,-head_height-18);bar:SetPoint('BOTTOMRIGHT',-3,20)
     bar:SetMinMaxValues(0,0);bar:SetValueStep(1);bar:SetValue(0)
     f.scroll=bar
     f.headers={}
     for i,col in ipairs(columns) do
         local b=CreateFrame('Button',nil,f)
-        b:SetHeight(26)
+        b:SetHeight(head_height)
         media.strip(b,'header','BACKGROUND',128,6)
         b.arrow=b:CreateTexture(nil,'OVERLAY');gui.set_size(b.arrow,12,12);b.arrow:SetPoint('RIGHT',-3,0);b.arrow:SetVertexColor(1,.82,.25);b.arrow:Hide()
-        local label=text(b,col.name,14);label:SetAllPoints();label:SetJustifyH(col.align or 'LEFT')
+        local label=text(b,col.name,14);label:SetPoint('TOPLEFT',6,0);label:SetPoint('BOTTOMRIGHT',-16,0);label:SetJustifyH(col.align or 'LEFT')
         b.text=label;b.column=i
         b:SetScript('OnClick',function() if f.sort then if f.sort_column==this.column then f.sort_reverse=not f.sort_reverse else f.sort_column=this.column;f.sort_reverse=false end;f.sort(this.column) end end)
         f.headers[i]=b
+        if head_height==0 then b:Hide() end
+    end
+    local function dimensions(self)
+        -- Anchored frames in 1.12 can report scaled GetWidth/GetHeight values.
+        -- Edge coordinates use the same local units as SetPoint/SetWidth.
+        local left,right,top,bottom=self:GetLeft(),self:GetRight(),self:GetTop(),self:GetBottom()
+        if not left or not right or not top or not bottom then return end
+        return right-left,top-bottom
     end
     function f:render()
-        local width=math.max(1,self:GetWidth()-28)
-        local n=math.max(1,math.floor((self:GetHeight()-30)/23))
+        if self.rendering then return end
+        local frame_width,frame_height=dimensions(self)
+        if not frame_width or frame_width<=28 or frame_height<=row_top then return end
+        self.rendering=true
+        self.layout_width,self.layout_height=frame_width,frame_height
+        self.layout_scale=self:GetEffectiveScale()
+        local width=frame_width-28
+        local n=math.max(0,math.floor((frame_height-row_top)/row_height))
         self.offset=math.min(self.offset,math.max(0,getn(self.data)-n))
         bar:SetMinMaxValues(0,math.max(0,getn(self.data)-n))
         if bar:GetValue() ~= self.offset then bar:SetValue(self.offset) end
@@ -99,7 +117,7 @@ function M.list(parent,columns,click)
             if not self.rows[i] then
                 local row=CreateFrame('Button',nil,self)
                 row:RegisterForClicks('LeftButtonUp','RightButtonUp')
-                row:SetHeight(23);row.cells={}
+                row:SetHeight(row_height);row.cells={}
                 row.icon=row:CreateTexture(nil,'ARTWORK');gui.set_size(row.icon,19,19)
                 row.bg=row:CreateTexture(nil,'BACKGROUND');row.bg:SetAllPoints();row.bg:SetTexture(1,1,1,i/2==math.floor(i/2) and .035 or .015)
                 row.category_art=media.strip(row,'header','BACKGROUND',128,6);row.category_art:Hide()
@@ -114,16 +132,20 @@ function M.list(parent,columns,click)
                 end
                 self.rows[i]=row
             end
-            local row=self.rows[i];row:ClearAllPoints();row:SetPoint('TOPLEFT',4,-29-(i-1)*23);row:SetWidth(width)
+            local row=self.rows[i]
             row.data=self.data[self.offset+i]
             if row.data then
+                local indent=row.data.indent or 0
+                local row_width=math.max(1,width-indent)
+                row:ClearAllPoints();row:SetPoint('TOPLEFT',4+indent,-row_top-(i-1)*row_height);row:SetWidth(row_width)
                 if row.data.value and not row.data.value.slot then row.category_art:Show() else row.category_art:Hide() end
                 row.icon:Hide()
                 local x=0
                 for j,col in ipairs(self.columns) do
-                    local inset=row.data.icon and row.data.icon.column==j and 23 or 0
-                    local label=row.cells[j];label:ClearAllPoints();label:SetPoint('LEFT',x+inset,0);label:SetWidth(width*col.width-5-inset);label:SetHeight(23)
-                    if inset>0 then row.icon:ClearAllPoints();row.icon:SetPoint('LEFT',x,0);row.icon:SetTexture(row.data.icon.texture);row.icon:Show() end
+                    local has_icon=row.data.icon and row.data.icon.column==j
+                    local inset=has_icon and 25 or 6
+                    local label=row.cells[j];label:ClearAllPoints();label:SetPoint('LEFT',x+inset,0);label:SetWidth(math.max(1,row_width*col.width-5-inset));label:SetHeight(row_height)
+                    if has_icon then row.icon:ClearAllPoints();row.icon:SetPoint('LEFT',x+2,0);row.icon:SetTexture(row.data.icon.texture);row.icon:Show() end
                     if row.data.value and not row.data.value.subclass then label:SetTextColor(1,.82,0) else label:SetTextColor(.94,.93,.90) end
                     local value=row.data.cells[j]
                     if type(value)=='table' and value.money then
@@ -136,13 +158,14 @@ function M.list(parent,columns,click)
                         label:SetText(value or '')
                         if row.money and row.money[j] then row.money[j]:Hide() end
                     end
-                    x=x+width*col.width
+                    x=x+row_width*col.width
                 end
                 if self.selected and self.selected(row.data) then row:LockHighlight() else row:UnlockHighlight() end
                 row:Show()
             else row:Hide() end
         end
         for i=n+1,getn(self.rows) do self.rows[i]:Hide() end
+        self.rendering=nil
     end
     function f:SetData(data, reset)
         self.data=data or {};if reset then self.offset=0 end
@@ -153,6 +176,10 @@ function M.list(parent,columns,click)
     f:SetScript('OnMouseWheel',function() bar:SetValue(bar:GetValue()-arg1*3) end)
     f:SetScript('OnShow',function() this:render() end)
     f:SetScript('OnSizeChanged',function() if this:IsVisible() then this:render() end end)
+    f:SetScript('OnUpdate',function()
+        local width,height=dimensions(this)
+        if width~=this.layout_width or height~=this.layout_height or this:GetEffectiveScale()~=this.layout_scale then this:render() end
+    end)
     return f
 end
 function M.money_input(parent,label,onchange)

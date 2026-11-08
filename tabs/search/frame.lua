@@ -16,7 +16,13 @@ function aux.handle.INIT_UI()
     local THEME_PADDING = gui.is_blizzard() and 4 or 0
 
     frame = CreateFrame('Frame', nil, gui.page_parent())
-    frame:SetAllPoints()
+    if gui.is_forever() then
+        -- Keep the advanced toolbar below the portrait and Back to browse.
+        frame:SetPoint('TOPLEFT',0,-22)
+        frame:SetPoint('BOTTOMRIGHT',0,0)
+    else
+        frame:SetAllPoints()
+    end
     frame:SetScript('OnUpdate', on_update)
     frame:Hide()
 

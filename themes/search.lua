@@ -204,10 +204,10 @@ local function categories()
         tinsert(rows,{cells={name},value={class=c}})
         if category.class==c then
             for s,sub in ipairs({GetAuctionItemSubClasses(c)}) do
-                tinsert(rows,{cells={'  '..sub},value={class=c,subclass=s}})
+                tinsert(rows,{cells={sub},indent=12,value={class=c,subclass=s}})
                 if category.subclass==s then
                     for k,slot in ipairs({GetAuctionInvTypes(c==2 and 2 or 0,s)}) do
-                        tinsert(rows,{cells={'    '..(_G[slot] or slot)},value={class=c,subclass=s,slot=k}})
+                        tinsert(rows,{cells={_G[slot] or slot},indent=24,value={class=c,subclass=s,slot=k}})
                     end
                 end
             end
@@ -243,24 +243,24 @@ function aux.handle.INIT_UI()
         if aux.bid_in_progress() then ui.bid:Disable();ui.buy:Disable();return end
         if selected and found_index and not aux.bid_in_progress() and not scan_util.test(selected,found_index) then invalidate();ui.status:set_text(L'Auction not found') end
     end)
-    ui.keyword=W.input(root,365);ui.keyword:SetPoint('TOPLEFT',220,-7);ui.keyword:SetScript('OnEnterPressed',search)
+    ui.keyword=W.input(root,300);ui.keyword:SetPoint('TOPLEFT',240,-7);ui.keyword:SetScript('OnEnterPressed',search)
     ui.keyword:SetTextInsets(26,8,2,2)
     local glass=ui.keyword:CreateTexture(nil,'OVERLAY');glass:SetTexture(media.path('search'));gui.set_size(glass,16,16);glass:SetPoint('LEFT',6,0)
     local placeholder=W.text(ui.keyword,L'Search',14);placeholder:SetTextColor(.5,.48,.44);placeholder:SetPoint('LEFT',26,0)
     ui.keyword:SetScript('OnTextChanged',function() if this.forever_focused then favorite_key=nil end;if this:GetText()=='' then placeholder:Show() else placeholder:Hide() end end)
-    ui.search=W.button(root,L'Search',105,search);ui.search:SetPoint('TOPRIGHT',-5,-5)
-    ui.filter=W.tab_button(root,L'Filters',100,function() if ui.popup:IsShown() then ui.popup:Hide() else ui.popup:Show() end end)
+    ui.search=W.button(root,L'Search',150,search);ui.search:SetPoint('TOPRIGHT',-5,-5)
+    ui.filter=W.tab_button(root,L'Filters',125,function() if ui.popup:IsShown() then ui.popup:Hide() else ui.popup:Show() end end)
     ui.filter:SetPoint('RIGHT',ui.search,'LEFT',-8,0)
     ui.star=W.icon_button(root,'star-on',28,show_favorites);ui.star:SetPoint('RIGHT',ui.keyword,'LEFT',-12,0)
-    local adv=W.tab_button(root,L'Advanced',100,function() forever_advanced(true) end);adv:SetPoint('TOPLEFT',5,-5)
+    local adv=W.tab_button(root,L'Advanced',100,function() forever_advanced(true) end);adv:SetPoint('TOPLEFT',68,-5)
     ui.advanced_back=W.button(frame,L'Back to browse',130,function() forever_advanced(false) end)
     ui.advanced_back:SetPoint('TOPRIGHT',aux.frame,'TOPRIGHT',-54,-40);ui.advanced_back:Hide()
     local sidebar=W.panel(root);sidebar:SetPoint('TOPLEFT',0,-43);sidebar:SetPoint('BOTTOMLEFT',0,0);sidebar:SetWidth(190)
     ui.categories=W.list(sidebar,{{name=L'Item Class',width=1}},function(row)
         category=row.value;favorite_key=nil;categories()
-    end);ui.categories:SetPoint('TOPLEFT',4,-3);ui.categories:SetPoint('BOTTOMRIGHT',-4,3)
+    end,{headers=false});ui.categories:SetPoint('TOPLEFT',4,-3);ui.categories:SetPoint('BOTTOMRIGHT',-4,3)
     ui.categories.selected=function(row) return row.value.class==category.class and (not row.value.subclass or row.value.subclass==category.subclass and (not row.value.slot or row.value.slot==category.slot)) end
-    local results=W.panel(root);results:SetPoint('TOPLEFT',198,-43);results:SetPoint('BOTTOMRIGHT',0,33);ui.results=results
+    local results=W.panel(root);results:SetPoint('TOPLEFT',198,-43);results:SetPoint('BOTTOMRIGHT',0,0);ui.results=results
     ui.empty=W.text(results,'',16);ui.empty:SetPoint('TOP',0,-110)
     ui.summary=W.list(results,{{name=L'Price',width=.25},{name=L'Name',width=.62},{name=L'Available',width=.13}},function(row,button)
         if shortcut(row.group.record) then return end
@@ -274,8 +274,8 @@ function aux.handle.INIT_UI()
     local refresh=W.icon_button(ui.detail,'refresh',28,function() if last_query then run_query(last_query) end end);refresh:SetPoint('TOPRIGHT',-8,-8)
     ui.available=W.text(ui.detail,'',14);ui.available:SetPoint('RIGHT',refresh,'LEFT',-10,0)
     ui.icon=ui.detail:CreateTexture(nil,'ARTWORK');gui.set_size(ui.icon,48,48);ui.icon:SetPoint('TOPLEFT',18,-50)
-    ui.item_name=W.text(ui.detail,'',18);ui.item_name:SetPoint('LEFT',ui.icon,'RIGHT',12,0);ui.item_name:SetWidth(470)
     ui.favorite=W.icon_button(ui.detail,'star-off',28,function() if groups[detail_key] then favorite(groups[detail_key].record);render() end end);ui.favorite:SetPoint('TOPRIGHT',-8,-55)
+    ui.item_name=W.text(ui.detail,'',18);ui.item_name:SetPoint('TOPLEFT',ui.icon,'TOPRIGHT',12,0);ui.item_name:SetPoint('TOPRIGHT',-48,-50);ui.item_name:SetHeight(48)
     ui.details=W.list(ui.detail,{{name=L'Bid',width=.32},{name=L'Buyout',width=.32},{name=L'Quantity',width=.14},{name=L'Time Left',width=.22}},function(row,button)
         if shortcut(row.record) then return end
         if IsAltKeyDown() and selected==row.record then trade(button=='LeftButton');return end
@@ -285,15 +285,15 @@ function aux.handle.INIT_UI()
     ui.details.selected=function(row) return row.record==selected end
     ui.buy=W.button(ui.detail,L'Buyout',110,function() trade(true) end);ui.buy:SetPoint('BOTTOMRIGHT',-8,6);ui.buy:Disable()
     ui.bid=W.button(ui.detail,L'Bid',110,function() trade(false) end);ui.bid:SetPoint('RIGHT',ui.buy,'LEFT',-8,0);ui.bid:Disable()
-    ui.status=gui.status_bar(root);ui.status:SetPoint('BOTTOMLEFT',200,2);gui.set_size(ui.status,400,24)
-    ui.scope=W.text(root,'',12);ui.scope:SetPoint('BOTTOMLEFT',200,-17)
-    ui.resume=W.button(root,L'Resume',100,function() if last_query then run_query(last_query,true) end end);ui.resume:SetPoint('BOTTOMRIGHT',-4,2);ui.resume:Hide()
+    ui.status=gui.status_bar(root);ui.status:SetPoint('BOTTOMLEFT',198,-30);gui.set_size(ui.status,300,24)
+    ui.resume=W.button(root,L'Resume',100,function() if last_query then run_query(last_query,true) end end);ui.resume:SetPoint('BOTTOMRIGHT',-38,-30);ui.resume:Hide()
+    ui.scope=W.text(root,'',12);ui.scope:SetPoint('BOTTOMLEFT',510,-30);ui.scope:SetPoint('BOTTOMRIGHT',ui.resume,'BOTTOMLEFT',-8,0);ui.scope:SetHeight(24);ui.scope:SetJustifyH('RIGHT')
     ui.favorites=W.panel(root);ui.favorites:SetAllPoints(results)
     ui.favorite_list=W.list(ui.favorites,{{name=L'Favorite items',width=1}},function(row,button)
         if button=='RightButton' then favorite_data()[row.record.item_key]=nil;show_favorites();return end
         category={};categories();ui.keyword:SetText(row.record.query or row.record.name);favorite_key=row.record.item_key;search()
     end);ui.favorite_list:SetPoint('TOPLEFT',6,-5);ui.favorite_list:SetPoint('BOTTOMRIGHT',-6,5)
-    ui.tip=W.text(ui.favorites,'',16);ui.tip:SetPoint('TOPLEFT',30,-100);ui.tip:SetWidth(620);ui.tip:SetJustifyH('CENTER')
+    ui.tip=W.text(ui.favorites,'',16);ui.tip:SetPoint('TOPLEFT',30,-100);ui.tip:SetPoint('TOPRIGHT',-30,-100);ui.tip:SetJustifyH('CENTER')
     ui.popup=W.panel(root);ui.popup:SetFrameStrata('DIALOG');gui.set_size(ui.popup,250,330);ui.popup:SetPoint('TOPRIGHT',ui.filter,'BOTTOMRIGHT',0,-5)
     local label=W.text(ui.popup,L'Level Range');label:SetPoint('TOPLEFT',16,-15)
     ui.min=W.input(ui.popup,80);ui.min:SetNumeric(true);ui.min:SetMaxLetters(3);ui.min:SetPoint('TOPLEFT',20,-42)

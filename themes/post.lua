@@ -82,7 +82,7 @@ function aux.handle.INIT_UI()
         elseif arg1=='RightButton' then aux.set_tab(1);search.forever_search_item(this.item_record) end
     end,function(r) return r==selected_item end)
     frame.inventory:Hide()
-    local inventory_button=W.tab_button(frame,L'Inventory',130,function() if frame.inventory:IsShown() then frame.inventory:Hide() else frame.inventory:Show();update_inventory_listing() end end);inventory_button:SetPoint('TOPLEFT',0,0)
+    local inventory_button=W.tab_button(frame,L'Inventory',130,function() if frame.inventory:IsShown() then frame.inventory:Hide() else frame.inventory:Show();update_inventory_listing() end end);inventory_button:SetPoint('TOPLEFT',68,0)
     refresh_button=W.icon_button(frame,'refresh',28,refresh_button_click);refresh_button:SetPoint('TOPRIGHT',0,0)
     status_bar=gui.status_bar(frame);status_bar:SetPoint('LEFT',inventory_button,'RIGHT',12,0);gui.set_size(status_bar,380,24)
     item=gui.item(frame.parameters);item:SetPoint('TOPLEFT',14,-12);item:SetWidth(380)

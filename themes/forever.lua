@@ -43,10 +43,10 @@ function M.build_forever()
 
     local host = CreateFrame('Frame', nil, frame)
     frame.page_host = host
-    host:SetPoint('TOPLEFT', 16, -72)
-    host:SetPoint('BOTTOMRIGHT', -16, 48)
+    host:SetPoint('TOPLEFT', 16, -50)
+    host:SetPoint('BOTTOMRIGHT', -16, 40)
     frame.content = CreateFrame('Frame', nil, host)
-    frame.content:SetPoint('TOPLEFT', 4, -80)
+    frame.content:SetPoint('TOPLEFT', 4, -102)
     frame.content:SetPoint('BOTTOMRIGHT', -4, 35)
 
     local wallet=CreateFrame('Frame',nil,frame)
@@ -96,7 +96,7 @@ function M.build_forever()
     for i, name in ipairs({L'Auctions', L'Bids'}) do
         local button = media.button(frame,14,'tab')
         gui.set_size(button, 90, 24)
-        button:SetPoint('TOPLEFT', 78 + (i - 1) * 96, -44)
+        button:SetPoint('TOPLEFT', 78 + (i - 1) * 96, -69)
         button:SetText(name)
         button.id = i + 2
         button:SetScript('OnClick', function() aux.set_tab(this.id) end)

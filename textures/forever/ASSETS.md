@@ -9,7 +9,9 @@ All TGA dimensions are powers of two and exports are uncompressed RGBA.
 
 * `window-edge` and `panel-edge`: 128 x 16, eight 16 x 16 cells ordered
   left, right, top, bottom, top-left, top-right, bottom-left, bottom-right.
-  Use Backdrop edgeSize 16; the painted bevel occupies seven pixels.
+  All four straight-edge cells contain vertical strips: Backdrop rotates the
+  top/bottom cells while tiling. At edgeSize 16 the painted bevel occupies
+  seven pixels; smaller edge sizes scale it proportionally.
 * Buttons, tabs, input and headers reserve six pixels for end caps. Keep the
   left/right caps fixed and stretch their center, or use nine-slice rendering.
 * `check-on` is a transparent check-mark overlay for `check-off`.
